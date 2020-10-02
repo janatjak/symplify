@@ -14,7 +14,6 @@ use Symplify\Gerudoc\ValueObject\Option;
 use Symplify\PackageBuilder\Console\Command\CommandNaming;
 use Symplify\PackageBuilder\Console\ShellCode;
 use Symplify\SmartFileSystem\Finder\SmartFinder;
-use Symplify\SmartFileSystem\SmartFileSystem;
 
 final class GenerateCommand extends Command
 {
@@ -24,21 +23,15 @@ final class GenerateCommand extends Command
     private $symfonyStyle;
 
     /**
-     * @var SmartFileSystem
-     */
-    private $smartFileSystem;
-
-    /**
      * @var SmartFinder
      */
     private $smartFinder;
 
-    public function __construct(SymfonyStyle $symfonyStyle, SmartFinder $smartFinder)
+    public function __construct(SymfonyStyle $symfonyStyle)
     {
         parent::__construct();
 
         $this->symfonyStyle = $symfonyStyle;
-        $this->smartFinder = $smartFinder;
     }
 
     protected function configure(): void
@@ -46,7 +39,11 @@ final class GenerateCommand extends Command
         $this->setName(CommandNaming::classToName(self::class));
         $this->setDescription('Generate documentation for found rules');
 
-        $this->addArgument(Option::SOURCE, InputArgument::REQUIRED | InputArgument::IS_ARRAY, 'One or more paths to scan for documented rules');
+        $this->addArgument(
+            Option::SOURCE,
+            InputArgument::REQUIRED | InputArgument::IS_ARRAY,
+            'One or more paths to scan for documented rules'
+        );
 
         $this->addOption(Option::OUTPUT_FILE, null, InputOption::VALUE_REQUIRED, 'Output directory path');
     }
@@ -58,7 +55,8 @@ final class GenerateCommand extends Command
         // @todo use robot loader for finding classe with interface
         $fileInfos = $this->smartFinder->find($sources, '*.php');
         dump($fileInfos);
-        die;
+
+        $this->symfonyStyle->success('Done');
 
         return ShellCode::SUCCESS;
     }
