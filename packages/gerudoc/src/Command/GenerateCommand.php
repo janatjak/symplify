@@ -55,7 +55,16 @@ final class GenerateCommand extends Command
         $sources = (array) $input->getArgument(Option::SOURCE);
 
         $documentedRuleClasses = $this->classFinder->findInSourceByInterface($sources, DocumentedRuleInterface::class);
+
+        if ($documentedRuleClasses === []) {
+            $this->symfonyStyle->error('No rules were found');
+
+            return ShellCode::ERROR;
+        }
+
         dump($documentedRuleClasses);
+
+        // @tod ote create instnaes without constructor and call the methods
 
         // @todo use robot loader for finding classe with interface
         die;
