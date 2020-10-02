@@ -10,10 +10,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symplify\Gerudoc\ClassFinder\ClassFinder;
+use Symplify\Gerudoc\Contract\DocumentedRuleInterface;
 use Symplify\Gerudoc\ValueObject\Option;
 use Symplify\PackageBuilder\Console\Command\CommandNaming;
 use Symplify\PackageBuilder\Console\ShellCode;
-use Symplify\SmartFileSystem\Finder\SmartFinder;
 
 final class GenerateCommand extends Command
 {
@@ -23,15 +24,16 @@ final class GenerateCommand extends Command
     private $symfonyStyle;
 
     /**
-     * @var SmartFinder
+     * @var ClassFinder
      */
-    private $smartFinder;
+    private $classFinder;
 
-    public function __construct(SymfonyStyle $symfonyStyle)
+    public function __construct(SymfonyStyle $symfonyStyle, ClassFinder $classFinder)
     {
         parent::__construct();
 
         $this->symfonyStyle = $symfonyStyle;
+        $this->classFinder = $classFinder;
     }
 
     protected function configure(): void
@@ -52,9 +54,11 @@ final class GenerateCommand extends Command
     {
         $sources = (array) $input->getArgument(Option::SOURCE);
 
+        $documentedRuleClasses = $this->classFinder->findInSourceByInterface($sources, DocumentedRuleInterface::class);
+        dump($documentedRuleClasses);
+
         // @todo use robot loader for finding classe with interface
-        $fileInfos = $this->smartFinder->find($sources, '*.php');
-        dump($fileInfos);
+        die;
 
         $this->symfonyStyle->success('Done');
 

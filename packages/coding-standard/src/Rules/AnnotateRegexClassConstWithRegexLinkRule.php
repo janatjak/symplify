@@ -9,6 +9,9 @@ use PhpParser\Node;
 use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\Stmt\ClassConst;
 use PHPStan\Analyser\Scope;
+use PHPStan\Rules\Rule;
+use Symplify\Gerudoc\Contract\DocumentedRuleInterface;
+use Symplify\Gerudoc\ValueObject\CodeSample;
 
 /**
  * @see \Symplify\CodingStandard\Tests\Rules\AnnotateRegexClassConstWithRegexLinkRule\AnnotateRegexClassConstWithRegexLinkRuleTest
@@ -110,5 +113,15 @@ final class AnnotateRegexClassConstWithRegexLinkRule extends AbstractSymplifyRul
     private function isRegexPatternConstantName(string $constantName): bool
     {
         return (bool) Strings::endsWith($constantName, '_REGEX');
+    }
+
+    public function getCategory(): string
+    {
+
+    }
+
+    public function getCodeSamples(): array
+    {
+
     }
 }

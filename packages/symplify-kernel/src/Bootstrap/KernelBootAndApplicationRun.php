@@ -75,7 +75,7 @@ final class KernelBootAndApplicationRun
         $application = $container->get(Application::class);
         if ($application === null) {
             $message = sprintf(
-                'Application class %s was not found. Make it public in the config.',
+                'Application class "%s" was not found. Make it public in the service config.',
                 Application::class
             );
             throw new BootException($message);
