@@ -5,14 +5,16 @@ declare(strict_types=1);
 namespace Symplify\Gerudoc\Command;
 
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symplify\MonorepoBuilder\Console\Reporter\ConflictingPackageVersionsReporter;
-use Symplify\MonorepoBuilder\FileSystem\ComposerJsonProvider;
-use Symplify\MonorepoBuilder\VersionValidator;
+use Symplify\Gerudoc\ValueObject\Option;
 use Symplify\PackageBuilder\Console\Command\CommandNaming;
 use Symplify\PackageBuilder\Console\ShellCode;
+use Symplify\SmartFileSystem\Finder\SmartFinder;
+use Symplify\SmartFileSystem\SmartFileSystem;
 
 final class GenerateCommand extends Command
 {
@@ -22,53 +24,42 @@ final class GenerateCommand extends Command
     private $symfonyStyle;
 
     /**
-     * @var VersionValidator
+     * @var SmartFileSystem
      */
-    private $versionValidator;
+    private $smartFileSystem;
 
     /**
-     * @var ComposerJsonProvider
+     * @var SmartFinder
      */
-    private $composerJsonProvider;
+    private $smartFinder;
 
-    /**
-     * @var ConflictingPackageVersionsReporter
-     */
-    private $conflictingPackageVersionsReporter;
-
-    public function __construct(
-        SymfonyStyle $symfonyStyle,
-        ComposerJsonProvider $composerJsonProvider,
-        VersionValidator $versionValidator,
-        ConflictingPackageVersionsReporter $conflictingPackageVersionsReporter
-    ) {
+    public function __construct(SymfonyStyle $symfonyStyle, SmartFinder $smartFinder)
+    {
         parent::__construct();
 
         $this->symfonyStyle = $symfonyStyle;
-        $this->versionValidator = $versionValidator;
-        $this->composerJsonProvider = $composerJsonProvider;
-        $this->conflictingPackageVersionsReporter = $conflictingPackageVersionsReporter;
+        $this->smartFinder = $smartFinder;
     }
 
     protected function configure(): void
     {
         $this->setName(CommandNaming::classToName(self::class));
-        $this->setDescription('Validates synchronized versions in "composer.json" in all found packages.');
+        $this->setDescription('Generate documentation for found rules');
+
+        $this->addArgument(Option::SOURCE, InputArgument::REQUIRED | InputArgument::IS_ARRAY, 'One or more paths to scan for documented rules');
+
+        $this->addOption(Option::OUTPUT_FILE, null, InputOption::VALUE_REQUIRED, 'Output directory path');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $conflictingPackageVersions = $this->versionValidator->findConflictingPackageVersionsInFileInfos(
-            $this->composerJsonProvider->getRootAndPackageFileInfos()
-        );
-        if ($conflictingPackageVersions === []) {
-            $this->symfonyStyle->success('All packages "composer.json" files use same package versions.');
+        $sources = (array) $input->getArgument(Option::SOURCE);
 
-            return ShellCode::SUCCESS;
-        }
+        // @todo use robot loader for finding classe with interface
+        $fileInfos = $this->smartFinder->find($sources, '*.php');
+        dump($fileInfos);
+        die;
 
-        $this->conflictingPackageVersionsReporter->report($conflictingPackageVersions);
-
-        return ShellCode::ERROR;
+        return ShellCode::SUCCESS;
     }
 }
