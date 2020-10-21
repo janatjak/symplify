@@ -261,6 +261,10 @@ services:
         arguments:
             maxNewClassNesting: 3
 
+    -
+        class: Symplify\CodingStandard\Rules\CheckRequiredAutowireAutoconfigurePublicUsedInConfigServiceRule
+        tags: [phpstan.rules.rule]
+
     # services
     - PhpParser\NodeFinder
     - Symplify\SmartFileSystem\SmartFileSystem
